@@ -140,26 +140,27 @@ hold off
 
 %% Paper Coefficients
 c1 = 1498; %Water
+density1 = 1;
 c2Long = 6320; %Aluminum
 c2Shear = 3130;
+density2 = 2.7;
+n = 30;
 
-z1Long = 0.1498;
-z2Long = 1.706;
-z2Shear = 0.8451;
+z1Long = c1*density1;
+z2Long = c2Long*density2;
+z2Shear = c2Shear*density2;
 Rf = zeros(1,n);
 Tf_l = zeros(1,n);
 Tf_s = zeros(1,n);
-degIn = [0:1:n];
+degIn = [0.1:0.001:30];
 
-for i = 1:90   
+for i = 1:length(degIn) 
         transLong = sind(degIn(i))/c1*c2Long;
         transShear = sind(degIn(i))/c1*c2Shear;
         %First Critical Angle
         if transLong >= 1 && transShear < 1
            degOutLong = 90; %No Longitudinal Wave Transmitted
            degOutShear = asind(transShear); %Still a Shear Wave
-           nShear = sind(degOutShear); %2*pi*f factor in each cancels
-           nLong = sind(degOutLong);
            z1LongTheta = z1Long/cosd(degIn(i));
            z2LongTheta = 0; %No Longitudinal Impedance
            z2ShearTheta = z2Shear/cosd(degOutShear);
@@ -169,7 +170,7 @@ for i = 1:90
             Ts = -(z1Long/c1)/(z2Shear/c2Shear)*2*z2ShearTheta*sind(2*degOutShear)/(z2LongTheta*cosd(2*degOutShear)^2+z2ShearTheta*sind(2*degOutShear)^2+z1LongTheta);
             
             Tf_li = 0;
-            Tf_si = z1Long*sind(degOutShear)*tand(degIn)*abs(Ts)^2/(z2Shear*sind(degIn)*tand(degOutShear));
+            Tf_si = sqrt(z1Long*sind(degOutShear)*tand(degIn)*abs(Ts)^2/(z2Shear*sind(degIn)*tand(degOutShear)));
             Rf_i = 1-Tf_li-Tf_si;
 
         %Second Critical Angle -> Total Reflection Occurs
@@ -185,18 +186,18 @@ for i = 1:90
             %Calculate new angles and Theta dependant impedances
             degOutLong = asind(transLong);
             degOutShear = asind(transShear);
-            nShear = sind(degOutShear); %2*pi*f factor in each cancels
-            nLong = sind(degOutLong);
             z1LongTheta = z1Long/cosd(degIn(i));
             z2LongTheta = z2Long/cosd(degOutLong);
             z2ShearTheta = z2Shear/cosd(degOutShear);
 
             %Reflection and Transmission
-            Tl = (z1Long/c1)/(z2Shear/c2Shear)*2*z2LongTheta*cosd(2*degOutShear)/(z2LongTheta*cosd(2*degOutShear)^2+z2ShearTheta*sind(2*degOutShear)^2+z1LongTheta);
-            Ts = -(z1Long/c1)/(z2Shear/c2Shear)*2*z2ShearTheta*sind(2*degOutShear)/(z2LongTheta*cosd(2*degOutShear)^2+z2ShearTheta*sind(2*degOutShear)^2+z1LongTheta);
+            Tl = (density1)/(density2)*(2*z2LongTheta*cosd(2*degOutShear))/(z2LongTheta*(cosd(2*degOutShear)^2)+z2ShearTheta*(sind(2*degOutShear)^2)+z1LongTheta);
+            Ts = -(density1)/(density2)*(2*z2ShearTheta*sind(2*degOutShear))/(z2LongTheta*(cosd(2*degOutShear)^2)+z2ShearTheta*(sind(2*degOutShear)^2)+z1LongTheta);
             
-            Tf_li = z1Long*sind(degOutLong)*tand(degIn)*abs(Tl)^2/(z2Long*sind(degIn)*tand(degOutLong));
-            Tf_si = z1Long*sind(degOutShear)*tand(degIn)*abs(Ts)^2/(z2Shear*sind(degIn)*tand(degOutShear));
+            %Tf_li = ((density1*c1/cosd(degIn(i)))/(density2*c2Long/cosd(degOutLong)))*abs(Tl)^2;
+            %Tf_si = ((density1*c1/cosd(degIn(i)))/(density2*c2Shear/cosd(degOutShear)))*abs(Ts)^2;
+            Tf_li = sqrt(z1Long*sind(degOutLong)*tand(degIn)*abs(Tl)^2/(z2Long*sind(degIn)*tand(degOutLong)));
+            Tf_si = sqrt(z1Long*sind(degOutShear)*tand(degIn)*abs(Ts)^2/(z2Shear*sind(degIn)*tand(degOutShear)));
             Rf_i = 1-Tf_li-Tf_si;
         end
         
