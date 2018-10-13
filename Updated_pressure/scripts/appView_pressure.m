@@ -4,6 +4,7 @@ classdef appView_pressure < matlab.apps.AppBase
     properties (Access = public)
         UIFigure  matlab.ui.Figure
         ChangeMediumAnglesPanel  matlab.ui.container.Panel
+        OutputPanel             matlab.ui.container.Panel
         
         Medium1zLabel            matlab.ui.control.Label
         Medium1zSlider           matlab.ui.control.Slider
@@ -33,6 +34,11 @@ classdef appView_pressure < matlab.apps.AppBase
         unit1Label               matlab.ui.control.Label
         unit2Label               matlab.ui.control.Label
         
+        ReflectionLabel          matlab.ui.control.Label
+        ReflectionEdit           matlab.ui.control.NumericEditField
+        TransmissionLabel        matlab.ui.control.Label
+        TransmissionEdit         matlab.ui.control.NumericEditField
+        
         ImAxe                    matlab.ui.control.UIAxes
         CMapAxeL                 matlab.ui.control.UIAxes
         CMapAxeR                 matlab.ui.control.UIAxes
@@ -51,14 +57,21 @@ classdef appView_pressure < matlab.apps.AppBase
             % Create ObliqueWavesatABoundaryUIFigure
             app.UIFigure = uifigure;
             app.UIFigure.Position = [100 100 740 450];
-            app.UIFigure.Name = 'Acoustic Pressure Distribution';
+            app.UIFigure.Name = 'Continuous Pressure Wave Reverberation';
 
             % Create ChangeMediumAnglesPanel
             app.ChangeMediumAnglesPanel = uipanel(app.UIFigure);
             app.ChangeMediumAnglesPanel.TitlePosition = 'centertop';
-            app.ChangeMediumAnglesPanel.Title = 'Control Panel';
+            app.ChangeMediumAnglesPanel.Title = 'User Inputs';
             app.ChangeMediumAnglesPanel.FontSize = 14;
-            app.ChangeMediumAnglesPanel.Position = [20 20 270 410];
+            app.ChangeMediumAnglesPanel.Position = [20 180 270 260];
+            
+            % Create OutputPanel
+            app.OutputPanel = uipanel(app.UIFigure);
+            app.OutputPanel.TitlePosition = 'centertop';
+            app.OutputPanel.Title = 'Outputs';
+            app.OutputPanel.FontSize = 14;
+            app.OutputPanel.Position = [20 10 270 180];
             
             %%  -------------Medium1zSlider------------------------
             % Create Medium1z Label
@@ -66,13 +79,13 @@ classdef appView_pressure < matlab.apps.AppBase
             app.Medium1zLabel.HorizontalAlignment = 'left';
             app.Medium1zLabel.FontSize = 12;
             app.Medium1zLabel.FontColor = 'k';
-            app.Medium1zLabel.Position = [10 330 85 45];
+            app.Medium1zLabel.Position = [10 178 85 45];
             app.Medium1zLabel.Text = {'Impedance','of Layer 1','(MRayls)'};
             % Create Medium1z Slider
             app.Medium1zSlider = uislider(app.ChangeMediumAnglesPanel);
             app.Medium1zSlider.Limits = [1 10];
             app.Medium1zSlider.FontSize = 14;
-            app.Medium1zSlider.Position = [90 363 115 3];
+            app.Medium1zSlider.Position = [90 213 115 3];
             app.Medium1zSlider.Value = app.modelObj.z1;
             app.Medium1zSlider.MajorTickLabelsMode = 'manual';
             app.Medium1zSlider.MajorTickLabels= {'1' '4' '7' '10'};
@@ -80,7 +93,7 @@ classdef appView_pressure < matlab.apps.AppBase
             app.Medium1zSlider.MinorTicks = 1:10;
             % Create Medium1z Edit Field
             app.Medium1zEdit = uieditfield(app.UIFigure, 'numeric');
-            app.Medium1zEdit.Position = [240 363 40 22];
+            app.Medium1zEdit.Position = [240 378 40 22];
             app.Medium1zEdit.Value = app.Medium1zSlider.Value;
  
             %% -------------Medium2zSlider------------------------
@@ -89,13 +102,13 @@ classdef appView_pressure < matlab.apps.AppBase
             app.Medium2zLabel.HorizontalAlignment = 'left';
             app.Medium2zLabel.FontSize = 12;
             app.Medium2zLabel.FontColor = 'k';
-            app.Medium2zLabel.Position = [10 280 85 45]; %<-230
+            app.Medium2zLabel.Position = [10 123 85 45]; %<-230
             app.Medium2zLabel.Text = {'Impedance','of Layer 2','(MRayls)'};
             % Create Medium2z Slider
             app.Medium2zSlider = uislider(app.ChangeMediumAnglesPanel);
             app.Medium2zSlider.Limits = [1 10];
             app.Medium2zSlider.FontSize = 14;
-            app.Medium2zSlider.Position = [90 313 115 3];%<-263
+            app.Medium2zSlider.Position = [90 158 115 3];%<-263
             app.Medium2zSlider.Value = app.modelObj.z2;
             app.Medium2zSlider.MajorTickLabelsMode = 'manual';
             app.Medium2zSlider.MajorTickLabels= {'1' '4' '7' '10'};
@@ -103,7 +116,7 @@ classdef appView_pressure < matlab.apps.AppBase
             app.Medium2zSlider.MinorTicks = 1:10;
             % Create Medium2z Edit Field
             app.Medium2zEdit = uieditfield(app.UIFigure, 'numeric');
-            app.Medium2zEdit.Position = [240 313 40 22];%<-263
+            app.Medium2zEdit.Position = [240 323 40 22];%<-263
             app.Medium2zEdit.Value = app.Medium2zSlider.Value;
             
             %% -------------Medium3zSlider------------------------
@@ -112,13 +125,13 @@ classdef appView_pressure < matlab.apps.AppBase
             app.Medium3zLabel.HorizontalAlignment = 'left';
             app.Medium3zLabel.FontSize = 12;
             app.Medium3zLabel.FontColor = 'k';
-            app.Medium3zLabel.Position = [10 230 85 45]; %<-280
+            app.Medium3zLabel.Position = [10 68 85 45]; %<-280
             app.Medium3zLabel.Text = {'Impedance','of Layer 3','(MRayls)'};
             % Create Medium3z Slider
             app.Medium3zSlider = uislider(app.ChangeMediumAnglesPanel);
             app.Medium3zSlider.Limits = [1 10];
             app.Medium3zSlider.FontSize = 14;
-            app.Medium3zSlider.Position = [90 263 115 3]; %<-313
+            app.Medium3zSlider.Position = [90 102 115 3]; %<-313
             app.Medium3zSlider.Value = app.modelObj.z3;
             app.Medium3zSlider.MajorTickLabelsMode = 'manual';
             app.Medium3zSlider.MajorTickLabels= {'1' '4' '7' '10'};
@@ -126,7 +139,7 @@ classdef appView_pressure < matlab.apps.AppBase
             app.Medium3zSlider.MinorTicks= 1:10;
             % Create Medium3z Edit Field
             app.Medium3zEdit = uieditfield(app.UIFigure, 'numeric');
-            app.Medium3zEdit.Position = [240 263 40 22]; %<-313
+            app.Medium3zEdit.Position = [240 268 40 22]; %<-313
             app.Medium3zEdit.Value = app.Medium3zSlider.Value;          
 
             %% -------------Medium2 Velocity Slider------------------------
@@ -152,27 +165,28 @@ classdef appView_pressure < matlab.apps.AppBase
 %             app.Medium2vEdit.Position = [240 193 40 22];
 %             app.Medium2vEdit.Value = app.Medium2vSlider.Value;
             
-            %% -------------Frequency Slider--------------------------
-            % Create FreqLabel
-            app.FreqLabel = uilabel(app.ChangeMediumAnglesPanel);
-            app.FreqLabel.HorizontalAlignment = 'left';
-            app.FreqLabel.FontSize = 14;
-            app.FreqLabel.FontColor = 'k';
-            app.FreqLabel.Position = [10 119 80 34];
-            app.FreqLabel.Text = {'Frequency','(MHz)'};
-            % Create FreqSlider
-            app.FreqSlider = uislider(app.ChangeMediumAnglesPanel);
-            app.FreqSlider.Limits = [0.1 20];
-            app.FreqSlider.FontSize = 14;
-            app.FreqSlider.Position = [90 143 115 3];
-            app.FreqSlider.Value = app.modelObj.fc;
-            app.FreqSlider.MajorTickLabelsMode = 'manual';
-            app.FreqSlider.MajorTickLabels= {'0.1' '5' '10' '15' '20'};
-            app.FreqSlider.MajorTicks= [0.1 5 10 15 20];
-            % Create FreqEdit
-            app.FreqEdit = uieditfield(app.UIFigure, 'numeric');
-            app.FreqEdit.Position = [240 143 40 22];
-            app.FreqEdit.Value = app.FreqSlider.Value;
+             %% -------------Frequency Slider--------------------------
+% Unneeded -> overdetermines GUI functions so I define as constant
+%             % Create FreqLabel
+%             app.FreqLabel = uilabel(app.ChangeMediumAnglesPanel);
+%             app.FreqLabel.HorizontalAlignment = 'left';
+%             app.FreqLabel.FontSize = 14;
+%             app.FreqLabel.FontColor = 'k';
+%             app.FreqLabel.Position = [10 119 80 34];
+%             app.FreqLabel.Text = {'Frequency','(MHz)'};
+%             % Create FreqSlider
+%             app.FreqSlider = uislider(app.ChangeMediumAnglesPanel);
+%             app.FreqSlider.Limits = [0.1 20];
+%             app.FreqSlider.FontSize = 14;
+%             app.FreqSlider.Position = [90 143 115 3];
+%             app.FreqSlider.Value = app.modelObj.fc;
+%             app.FreqSlider.MajorTickLabelsMode = 'manual';
+%             app.FreqSlider.MajorTickLabels= {'0.1' '5' '10' '15' '20'};
+%             app.FreqSlider.MajorTicks= [0.1 5 10 15 20];
+%             % Create FreqEdit
+%             app.FreqEdit = uieditfield(app.UIFigure, 'numeric');
+%             app.FreqEdit.Position = [240 143 40 22];
+%             app.FreqEdit.Value = app.FreqSlider.Value;
 
             %% -----------Thickness Slider--------------------------
             % Create ThickLabel
@@ -180,27 +194,27 @@ classdef appView_pressure < matlab.apps.AppBase
             app.ThickLabel.HorizontalAlignment = 'left';
             app.ThickLabel.FontSize = 12;
             app.ThickLabel.FontColor = 'k';
-            app.ThickLabel.Position = [10 65 80 45];
-            app.ThickLabel.Text = {'Thickness','of Layer 2', '(wavelength)'};
+            app.ThickLabel.Position = [10 13 80 45];
+            app.ThickLabel.Text = {'Thickness','of Layer 2', 'wavelength'};
             % Create ThickSlider
             app.ThickSlider = uislider(app.ChangeMediumAnglesPanel);
-            app.ThickSlider.Limits = [0.05 3];
+            app.ThickSlider.Limits = [0.05 2];
             app.ThickSlider.FontSize = 14;
-            app.ThickSlider.Position = [90 93 115 3];
+            app.ThickSlider.Position = [90 48 115 3];
             app.ThickSlider.Value = app.modelObj.d2;
             app.ThickSlider.MajorTickLabelsMode = 'manual';
-            app.ThickSlider.MajorTickLabels= {'0.05' '1' '2' '3'};
-            app.ThickSlider.MajorTicks= [0.05 1 2 3];
+            app.ThickSlider.MajorTickLabels= {'0.05' '0.5' '1' '1.5' '2'};
+            app.ThickSlider.MajorTicks= [0.05 0.5 1 1.5 2];
             app.ThickSlider.MinorTicks = [0.05 0.25:0.25:25];
             % Create ThickEdit
             app.ThickEdit = uieditfield(app.UIFigure, 'numeric');
-            app.ThickEdit.Position = [240 93 40 22];            
+            app.ThickEdit.Position = [240 213 40 22];            
             app.ThickEdit.Value = app.ThickSlider.Value;
             
             %% ---------------------------
             % Create ViewCodeBtn
-            app.ViewCodeBtn = uibutton(app.ChangeMediumAnglesPanel, 'push');
-            app.ViewCodeBtn.Position = [78 5 100 22];
+            app.ViewCodeBtn = uibutton(app.OutputPanel, 'push');
+            app.ViewCodeBtn.Position = [83 5 100 22];
             app.ViewCodeBtn.Text = 'View Code';
 
             % Create ImAxe
@@ -215,6 +229,32 @@ classdef appView_pressure < matlab.apps.AppBase
             app.CMapAxeR = uiaxes(app.UIFigure);
             app.CMapAxeR.Position = [660 20 50 410];
             axis(app.CMapAxeR,'off');
+            
+            % Create Reflection Label
+            app.ReflectionLabel = uilabel(app.UIFigure);
+            app.ReflectionLabel.HorizontalAlignment = 'left';
+            app.ReflectionLabel.FontSize = 12;
+            app.ReflectionLabel.FontColor = 'k';
+            app.ReflectionLabel.Position = [55 115 60 28];
+            app.ReflectionLabel.Text = {'Reflection','of Layer 1'};
+            
+            % Create Reflection Edit Field
+            app.ReflectionEdit = uieditfield(app.UIFigure, 'numeric');
+            app.ReflectionEdit.Position = [60 90 40 22];
+            app.ReflectionEdit.Value = 0;
+            
+            % Create Transmission Label
+            app.TransmissionLabel = uilabel(app.UIFigure);
+            app.TransmissionLabel.HorizontalAlignment = 'left';
+            app.TransmissionLabel.FontSize = 12;
+            app.TransmissionLabel.FontColor = 'k';
+            app.TransmissionLabel.Position = [200 115 80 28];
+            app.TransmissionLabel.Text = {'Transmission','of Layer 3'};
+            
+            % Create Trasnmission Edit Field
+            app.TransmissionEdit = uieditfield(app.UIFigure, 'numeric');
+            app.TransmissionEdit.Position = [205 90 40 22];
+            app.TransmissionEdit.Value = 0;
         end
         
         function startupFcn(app)
@@ -230,12 +270,12 @@ classdef appView_pressure < matlab.apps.AppBase
             
             slider = {  app.Medium1zSlider, app.Medium2zSlider, ...
                         app.Medium3zSlider...
-                        app.FreqSlider, app.ThickSlider};
+                        app.ThickSlider};
                     
             editField = {   app.Medium1zEdit, app.Medium2zEdit, ...
                             app.Medium3zEdit...
-                            app.FreqEdit, app.ThickEdit};
-            for k = 1:5
+                            app.ThickEdit};
+            for k = 1:4
                 set(slider{k}, 'ValueChangedFcn', ...
                     @(src,eventdata)controller.SliderChanged(src,eventdata,slider{k},editField{k}));
                 set(editField{k}, 'ValueChangedFcn', ...
@@ -280,9 +320,11 @@ classdef appView_pressure < matlab.apps.AppBase
             
             % Add Explanation Texts to ImAxe
             text(app.ImAxe,-1,1.2,'\bf Layer 1','Color','b','FontSize',16);
-            text(app.ImAxe,-.9,1.05,'Incident Beam','Color','b','FontSize',12);
-            text(app.ImAxe,-.9,0.95,'Frequency:','Color','b','FontSize',12);
-            text(app.ImAxe,-.9,0.85,[num2str(app.modelObj.fc,'%.2f'),' MHz'],'Color','b','FontSize',14);
+            %No longer using a variable input frequency so this isn't
+            %needed
+%             text(app.ImAxe,-.9,1.05,'Incident Beam','Color','b','FontSize',12);
+%             text(app.ImAxe,-.9,0.95,'Frequency:','Color','b','FontSize',12);
+%             text(app.ImAxe,-.9,0.85,[num2str(app.modelObj.fc,'%.2f'),' MHz'],'Color','b','FontSize',14);
             
             lambda = app.modelObj.c2/(1e6*app.modelObj.fc); % unit: m
             thickness=app.modelObj.d2*lambda;  % line length  (m)

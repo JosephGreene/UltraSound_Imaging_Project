@@ -1,14 +1,18 @@
 classdef appModel_pressure < handle
     properties
         % material properties
-        c2 = 1540;
+        c2 = 1540; %I define this to remove a redundant slider
    
         z1
         z2
         z3
         % simulation settings
-        fc % center frequency of incident wave
+        fc = 4; %I define this to remove a redundant slider
         d2
+        
+        %First layer reflection, last layer transmission
+        Rf
+        Tf
         
         % refraction
         rfColor
@@ -27,7 +31,7 @@ classdef appModel_pressure < handle
     end % end of events
     methods
         
-	function obj = appModel_pressure(c2,z1,z2,z3,fc,d2)
+	function obj = appModel_pressure(c2,z1,z2,z3,fc,d2,Rf,Tf)
         obj.c2 = c2;
  
         obj.z1 = z1;
@@ -37,10 +41,13 @@ classdef appModel_pressure < handle
         obj.fc = fc;
         obj.d2 = d2;
         
-        obj.updateSettings(c2, z1, z2, z3, fc, d2);    
+        obj.Rf = Rf;
+        obj.Tf = Tf;
+        
+        obj.updateSettings(c2, z1, z2, z3, fc, d2,Rf,Tf);    
     end
     
-    function updateSettings(obj, c2, z1, z2, z3, fc, d2)
+    function updateSettings(obj, c2, z1, z2, z3, fc, d2,Rf,Tf)
         % Update the object properties for debug.
         obj.c2 = c2;
 
@@ -69,44 +76,34 @@ classdef appModel_pressure < handle
         nt=256;             %  number of time points
         % input variables
         pi2=2*pi;
-        pid2=pi/2;
         del=d2/(nt-1);
         dd=del*(0:nt-1);
         k2d=pi2*fc*dd/c2;     % distance from end to front (medium 3 to medium 1)
-        k2d2=pi2*fc*(d2*ones(size(dd))-dd)/c2; % distance from front to end: 1 to 3
         k1d=pi2*fc*d2/c2;
         rf3=(z3-z2)/(z3+z2); %Reflectance 
-        tf3=2*z3/(z3+z2); %Transmission
-        p2=exp(-i*k1d)*(exp(i*k2d)+rf3.*exp(-i*k2d));   % pressure in layer
+
+        p2=exp(-1i*k1d)*(exp(1i*k2d)+rf3.*exp(-1i*k2d));   % pressure in layer
         %p2=exp(i*k2d)+rf3.*exp(-1i*k2d);   % pressure in layer   error corrected
-        u2=exp(-i*k1d)*((exp(i*k2d)-rf3.*exp(-i*k2d)))/z2;   %  particle  velocity in layer
-        zin2=p2./u2; %Input impedance of pressure wave
-        p1r=(zin2-z1*ones(size(dd)))./(zin2+z1*ones(size(dd)));  % reflected in 1
-        p2t=2*zin2./(zin2+z1*ones(size(dd)));  % transmitted into 2 
-        p1r0=p1r(nt);           % reflected in 1 at z=0 at first boundary
-        p2t0=p2t(nt);           % transmitted into 2 at z=0
-        p3td=p2(1)*tf3;         % transmitted into 3 at z=d
-        p2a=p2t0*p2;   %  corrected pressure in layer  use this one
-        u2a=p2t0*u2;   %  corrected displacement  in layer
-        % power into z3
-        p2in=p2t0*(exp(i*k1d)+rf3.*exp(-1i*k1d));   % pressure in layer
-        u2in=p2t0*(exp(i*k1d)-rf3.*exp(-i*k1d))/z2;   %  particle  velocity in layer
-        z2in=p2in./u2in;   % input impedance looking into first boundary
-        % power transmitted into Z3 at second boundary
-        t2f3=2/((1+z1/z3)*cos(k1d)+i*(z2/z3+z1/z2)*sin(k1d));
-        tp23=abs(t2f3)*abs(t2f3)*(z1/z3);   % transmit into 3  use this one
-        %t2f3=4*(real(z3)*z2)./((real(z3)+z2).*(real(z3)+z2)+imag(z3).*imag(z3))
-        % power reflected at first boundary into z1 use ths one
-        %rf1=((real(z2in)-z1).*(real(z2in)-z1)+imag(z2in)).*(imag(z2in))...
-        %./((real(z2in)+z1).*(real(z2in)+z1)+imag(z2in).*imag(z2in))
+        u2=exp(-1i*k1d)*((exp(1i*k2d)-rf3.*exp(-1i*k2d)))/z2;   %  particle  velocity in layer
         
-        %Using the above equations, I modelled the first interface
-        %transmission assuming that the distance from the transducer to the
-        %interface is a multiple of n*pi (or 0 cause skin contact) then
-        %reflection is 1-transmission
-        t1f2=2/((1+z1/z2));
-        rf1 = 1 - abs(t1f2)*abs(t1f2)*(z1/z2)
-    
+        % power transmitted into Z3 at second boundary
+        t2f3=2/((1+z1/z3)*cos(k1d)+1i*(z2/z3+z1/z2)*sin(k1d));
+
+        
+        %Szabo's equations, second try. Rechecked in book chp3.
+        %First way to find reflection from both media
+        r = ((1-(z1/z3))*cos(k1d)+1i*((z2/z3-z1/z2)*sin(k1d)))...
+            /((1+(z1/z3))*cos(k1d)+1i*((z2/z3+z1/z2)*sin(k1d)));
+        
+        %Second way by first determining input impedence
+        zin = z2*(z3*cos(k1d)+1i*z2*sin(k1d))/(z2*cos(k1d)+1i*z3*sin(k1d));
+        rr = (zin-z1)/(z1+zin);
+        obj.Rf = abs(r)^2 %Notice these are equal, so correct.
+        
+        %Transmission out of the stacked media
+        obj.Tf = 1-rrf1;
+        
+        
         p2 = abs(p2);
         obj.p2 = p2;
         
@@ -128,8 +125,8 @@ classdef appModel_pressure < handle
         
         % refractions
 
-        obj.rfColor = CMap(round(abs(rf1)*63+1),:);
-        obj.tfColor = CMap(round(tp23*63+1),:);
+        obj.rfColor = CMap(round(abs(obj.Rf)*63+1),:);
+        obj.tfColor = CMap(round(obj.Tf*63+1),:);
         
         obj.notify('mediumUpdated');
     end

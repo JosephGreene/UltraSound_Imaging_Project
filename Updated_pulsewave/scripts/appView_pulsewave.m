@@ -4,6 +4,9 @@ classdef appView_pulsewave < matlab.apps.AppBase
     properties (Access = public)
         UIFigure  matlab.ui.Figure
         ChangeMediumAnglesPanel  matlab.ui.container.Panel
+        Layer1Panel              matlab.ui.container.Panel
+        Layer2Panel              matlab.ui.container.Panel
+        Layer3Panel              matlab.ui.container.Panel
         
         Medium1zLabel            matlab.ui.control.Label
         Medium1zSlider           matlab.ui.control.Slider
@@ -36,6 +39,10 @@ classdef appView_pulsewave < matlab.apps.AppBase
         unit1Label               matlab.ui.control.Label
         unit2Label               matlab.ui.control.Label
         
+        Layer1Label              matlab.ui.control.Label
+        Layer2Label              matlab.ui.control.Label
+        Layer3Label              matlab.ui.control.Label
+        
         ImAxe                    matlab.ui.control.UIAxes
         
         LineAxe                 matlab.ui.control.UIAxes
@@ -63,12 +70,12 @@ classdef appView_pulsewave < matlab.apps.AppBase
             % Create ObliqueWavesatABoundaryUIFigure
             app.UIFigure = uifigure;
             app.UIFigure.Position = [100 100 720 450];
-            app.UIFigure.Name = 'Acoustic Pressure Distribution';
+            app.UIFigure.Name = 'Pulsed Pressure Wave Reverberation';
 
             % Create ChangeMediumAnglesPanel
             app.ChangeMediumAnglesPanel = uipanel(app.UIFigure);
             app.ChangeMediumAnglesPanel.TitlePosition = 'centertop';
-            app.ChangeMediumAnglesPanel.Title = 'Control Panel';
+            app.ChangeMediumAnglesPanel.Title = 'User Inputs';
             app.ChangeMediumAnglesPanel.FontSize = 14;
             app.ChangeMediumAnglesPanel.Position = [20 20 270 410];
             
@@ -231,6 +238,31 @@ classdef appView_pulsewave < matlab.apps.AppBase
             app.LineAxe.Position = [300 10 400 160];
             axis(app.LineAxe,'on');
             
+            %% ------Layer Labels------
+                
+            %First Layer Label
+            app.Layer1Label = uilabel(app.UIFigure);
+            app.Layer1Label.HorizontalAlignment = 'left';
+            app.Layer1Label.FontSize = 14;
+            app.Layer1Label.FontColor = 'b';
+            app.Layer1Label.Position = [300 375 65 25]; %<-280
+            app.Layer1Label.Text = {'Layer1'};
+            
+            %Second Layer Label
+            app.Layer2Label = uilabel(app.UIFigure);
+            app.Layer2Label.HorizontalAlignment = 'left';
+            app.Layer2Label.FontSize = 14;
+            app.Layer2Label.FontColor = 'r';
+            app.Layer2Label.Position = [300 295 65 25]; %<-280
+            app.Layer2Label.Text = {'Layer2'};
+            
+            %Third Layer Label
+            app.Layer1Label = uilabel(app.UIFigure);
+            app.Layer1Label.HorizontalAlignment = 'left';
+            app.Layer1Label.FontSize = 14;
+            app.Layer1Label.FontColor = 'k';
+            app.Layer1Label.Position = [300 215 65 25]; %<-280
+            app.Layer1Label.Text = {'Layer3'};
         end
         
         function startupFcn(app)
@@ -311,7 +343,7 @@ classdef appView_pulsewave < matlab.apps.AppBase
             axis(app.LineAxe, [0, app.modelObj.maxTime*1e6, ...
                 min(app.modelObj.timeVec), max(app.modelObj.timeVec)]);
             xlabel(app.LineAxe,'Time (\mus)');
-            ylabel(app.LineAxe,'Pulse Intensity');
+            ylabel(app.LineAxe,'Exit Pulse Amplitude');
         end
         
         %Checks calculated values to see if the wave is tranmitted or

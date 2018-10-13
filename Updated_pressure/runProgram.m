@@ -5,5 +5,7 @@ z2 = 3;
 z3 = 9;
 fc = 4;
 d2 = 1.5;
+Rf = 0;
+Tf = 0;
 model = appModel_pressure(c2,z1,z2,z3,fc,d2);
 handle = appView_pressure(model);
