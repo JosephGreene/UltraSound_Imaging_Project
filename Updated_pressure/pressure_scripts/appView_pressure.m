@@ -240,8 +240,8 @@ classdef appView_pressure < matlab.apps.AppBase
             
             % Create Reflection Edit Field
             app.ReflectionEdit = uieditfield(app.UIFigure, 'numeric');
-            app.ReflectionEdit.Position = [60 90 40 22];
-            app.ReflectionEdit.Value = 0;
+            app.ReflectionEdit.Position = [60 90 41 22];
+            app.ReflectionEdit.Value = app.modelObj.Rf;
             
             % Create Transmission Label
             app.TransmissionLabel = uilabel(app.UIFigure);
@@ -253,8 +253,8 @@ classdef appView_pressure < matlab.apps.AppBase
             
             % Create Trasnmission Edit Field
             app.TransmissionEdit = uieditfield(app.UIFigure, 'numeric');
-            app.TransmissionEdit.Position = [205 90 40 22];
-            app.TransmissionEdit.Value = 0;
+            app.TransmissionEdit.Position = [205 90 41 22];
+            app.TransmissionEdit.Value = app.modelObj.Tf;
         end
         
         function startupFcn(app)
@@ -274,10 +274,13 @@ classdef appView_pressure < matlab.apps.AppBase
                     
             editField = {   app.Medium1zEdit, app.Medium2zEdit, ...
                             app.Medium3zEdit...
-                            app.ThickEdit};
+                            app.ThickEdit,app.ReflectionEdit,app.TransmissionEdit};
             for k = 1:4
                 set(slider{k}, 'ValueChangedFcn', ...
                     @(src,eventdata)controller.SliderChanged(src,eventdata,slider{k},editField{k}));
+            end
+            
+            for k = 1:6
                 set(editField{k}, 'ValueChangedFcn', ...
                     @(src,eventdata)controller.EditChanged(src,eventdata,slider{k},editField{k}));
             end

@@ -40,14 +40,13 @@ classdef appModel_pressure < handle
         
         obj.fc = fc;
         obj.d2 = d2;
-        
         obj.Rf = Rf;
         obj.Tf = Tf;
         
-        obj.updateSettings(c2, z1, z2, z3, fc, d2,Rf,Tf);    
+        obj.updateSettings(c2, z1, z2, z3, fc, d2);    
     end
     
-    function updateSettings(obj, c2, z1, z2, z3, fc, d2,Rf,Tf)
+    function updateSettings(obj, c2, z1, z2, z3, fc, d2)
         % Update the object properties for debug.
         obj.c2 = c2;
 
@@ -82,7 +81,7 @@ classdef appModel_pressure < handle
         k1d=pi2*fc*d2/c2;
         rf3=(z3-z2)/(z3+z2); %Reflectance 
 
-        p2=exp(-1i*k1d)*(exp(1i*k2d)+rf3.*exp(-1i*k2d));   % pressure in layer
+        p2=exp(1i*k1d)*(exp(1i*k2d)-rf3.*exp(-1i*k2d));   % pressure in layer
         %p2=exp(i*k2d)+rf3.*exp(-1i*k2d);   % pressure in layer   error corrected
         u2=exp(-1i*k1d)*((exp(1i*k2d)-rf3.*exp(-1i*k2d)))/z2;   %  particle  velocity in layer
         
@@ -98,11 +97,13 @@ classdef appModel_pressure < handle
         %Second way by first determining input impedence
         zin = z2*(z3*cos(k1d)+1i*z2*sin(k1d))/(z2*cos(k1d)+1i*z3*sin(k1d));
         rr = (zin-z1)/(z1+zin);
-        obj.Rf = abs(r)^2 %Notice these are equal, so correct.
+        Rf = abs(r)^2; %Notice these are equal, so correct.
         
         %Transmission out of the stacked media
-        obj.Tf = 1-rrf1;
+        Tf = 1-Rf;
         
+        obj.Rf = Rf;
+        obj.Tf = Tf;
         
         p2 = abs(p2);
         obj.p2 = p2;
