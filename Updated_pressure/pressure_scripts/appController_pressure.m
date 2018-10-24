@@ -44,7 +44,7 @@ classdef appController_pressure < handle
     end
 
     function codeViewPushed(app, src, event)
-        edit('code.mlx');
+        edit('Continuous_Pressure.mlx');
     end
    end 
 end

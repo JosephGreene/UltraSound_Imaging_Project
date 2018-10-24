@@ -236,7 +236,7 @@ classdef appView_pressure < matlab.apps.AppBase
             app.ReflectionLabel.FontSize = 12;
             app.ReflectionLabel.FontColor = 'k';
             app.ReflectionLabel.Position = [55 115 60 28];
-            app.ReflectionLabel.Text = {'Reflection','of Layer 1'};
+            app.ReflectionLabel.Text = {'Reflected','Power'};
             
             % Create Reflection Edit Field
             app.ReflectionEdit = uieditfield(app.UIFigure, 'numeric');
@@ -249,7 +249,7 @@ classdef appView_pressure < matlab.apps.AppBase
             app.TransmissionLabel.FontSize = 12;
             app.TransmissionLabel.FontColor = 'k';
             app.TransmissionLabel.Position = [200 115 80 28];
-            app.TransmissionLabel.Text = {'Transmission','of Layer 3'};
+            app.TransmissionLabel.Text = {'Transmitted','Power'};
             
             % Create Trasnmission Edit Field
             app.TransmissionEdit = uieditfield(app.UIFigure, 'numeric');
@@ -330,16 +330,16 @@ classdef appView_pressure < matlab.apps.AppBase
 %             text(app.ImAxe,-.9,0.85,[num2str(app.modelObj.fc,'%.2f'),' MHz'],'Color','b','FontSize',14);
             
             lambda = app.modelObj.c2/(1e6*app.modelObj.fc); % unit: m
-            thickness=app.modelObj.d2*lambda;  % line length  (m)
         
             text(app.ImAxe,-1,0.2,'\bf Layer 2','Color','r','FontSize',16);
-            text(app.ImAxe,-.9,.05,'Thickness:','Color','r','FontSize',12);
-            text(app.ImAxe,-.9,-.05,'d= n\times\lambda','Color','r','FontSize',14);
-            text(app.ImAxe,-.9,-.15,' = n\timesc/f_c','Color','r','FontSize',14);
-            text(app.ImAxe,-.9,-.25,[' =',num2str(thickness*1e3,'%.2f'),' mm'],'Color','r','FontSize',14);
+            text(app.ImAxe,-0.9,.05,'Pressure ','Color','r','FontSize',14);
+            text(app.ImAxe,-0.9,-.05,'Wave','Color','r','FontSize',14);
             
             text(app.ImAxe,-1,-1.2,'\bf Layer 3','Color','b','FontSize',16);
             
+            text(app.ImAxe,0.67,1.5,'Layer 2','Color','k','FontSize',14);
+            text(app.ImAxe,0.61,1.4,'Ampltude','Color','k','FontSize',14);
+            text(app.ImAxe,0.69,1.3,'Value','Color','k','FontSize',14);
             
             hold(app.ImAxe,'off');
             
@@ -349,7 +349,7 @@ classdef appView_pressure < matlab.apps.AppBase
             h2.Limits = [0 1];  
             colormap(app.CMapAxeR,'hot');
             h2 = colorbar(app.CMapAxeR);
-            h2.Limits = [0 max(app.modelObj.p2)];          
+            h2.Limits = [-1.5 1.5]; %Change limits to reflect p2
             
         end
 
