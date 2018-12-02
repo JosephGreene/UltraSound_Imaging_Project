@@ -120,11 +120,17 @@ classdef appModel_pulsewave < handle
             obj.yS(:,:,k+1) = [ydata; ydata];
         end
         
+        %Adjust timevec so there is no enterence delay (Propegation into
+        %media accounted for)
+         obj.maxTime = 12.6*d2/c2/1e6;
+%         b = round(1/(obj.maxTime*10^6)*length(timeVec))
+         %timeVec = circshift(timeVec,-round(1.3/(obj.maxTime*10^6)*length(timeVec)));
+        
         obj.cS = [waves(1,:); waves(1,:)];
         obj.waves = waves;
         obj.nSampleTot = nSampleTot;
         obj.timeVec = timeVec;
-        obj.maxTime = 12.6*d2/c2/1e6;
+        
         obj.notify('reset');
     end
     

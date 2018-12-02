@@ -235,7 +235,7 @@ classdef appView_pulsewave < matlab.apps.AppBase
             app.ImAxe.Position = [300 180 400 250];
             
             app.LineAxe = uiaxes(app.UIFigure);
-            app.LineAxe.Position = [300 10 400 160];
+            app.LineAxe.Position = [330 10 360 160];
             axis(app.LineAxe,'on');
             
             %% ------Layer Labels------
@@ -340,7 +340,10 @@ classdef appView_pulsewave < matlab.apps.AppBase
             app.ImAxe.CLim = [0 1];
             
             plot(app.LineAxe,1,1);
-            axis(app.LineAxe, [0, app.modelObj.maxTime*1e6, ...
+                        nSampleTot = app.modelObj.nSampleTot;
+            nSampleInitial = round(30*0.5/1.1)+30; %Time delay caused by initial propegation of wave
+            ratio = (nSampleInitial/nSampleTot); %Ratio compared to all time points so that wave is 'ontime' (assume no outside propegation)
+            axis(app.LineAxe, [0, app.modelObj.maxTime*1e6-ratio*app.modelObj.maxTime*1e6, ...
                 min(app.modelObj.timeVec), max(app.modelObj.timeVec)]);
             xlabel(app.LineAxe,'Time (\mus)');
             ylabel(app.LineAxe,'Exit Pulse Amplitude');
@@ -388,12 +391,14 @@ classdef appView_pulsewave < matlab.apps.AppBase
             app.PlayBtn.Enable = 'off';
             % scaling factors
             %Time delay is how fast the wave moves through given thickness
-            timeDelay = 9e-3*(app.modelObj.d2/app.modelObj.c2)+0.005;
+            timeDelay = 18e-3*(app.modelObj.d2/app.modelObj.c2)+0.005;
             %nSampleTot is the total number of steps the drawing animation
             %will have. In this case, it takes 374 steps to represent the
             %wave propegating from the beginning to end.
-            nSampleTot = app.modelObj.nSampleTot;
-            tRx = linspace(0, app.modelObj.maxTime*1e6, nSampleTot);
+                        nSampleTot = app.modelObj.nSampleTot;
+            nSampleInitial = round(30*0.5/1.1)+30; %Time delay caused by initial propegation of wave
+            ratio = (nSampleInitial/nSampleTot); %Ratio compared to all time points so that wave is 'ontime' (assume no outside propegation)
+            tRx = linspace((0-ratio*app.modelObj.maxTime*1e6), app.modelObj.maxTime*1e6-ratio*app.modelObj.maxTime*1e6, nSampleTot);
             %kend = app.checkCoefficients() %uncomment to stop movie when
             %wave dissipates
             for k = 1:app.modelObj.nSampleTot
